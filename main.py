@@ -39,7 +39,7 @@ if st.button("🔍 Predecir supervivencia"):
     pred = modelo.predict(datos_paciente)[0]
     prob = modelo.predict_proba(datos_paciente)[0][1]
 
-    if pred == "Yes":
+    if prob >= 0.5:
         st.success(f"✅ Supervivencia probable ({prob * 100:.1f}% de supervivencia)")
     else:
-        st.error(f"⚠️ Riesgo de no supervivencia ({(1 - prob) * 100:.1f}% de no supervivencia)")
+        st.error(f"⚠️ Supervivencia probable ({prob * 100:.1f}% de supervivencia)")

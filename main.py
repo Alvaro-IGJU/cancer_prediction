@@ -1,57 +1,45 @@
 import streamlit as st
-import joblib
-import numpy as np
 import pandas as pd
+import joblib
 
-# Cargar el modelo con pipeline (preprocesa internamente)
-modelo = joblib.load("modelo_rf_ohe.pkl")
+# Cargar el modelo entrenado
+modelo = joblib.load("modelo_rf_v2.pkl")
 
-st.title("Predicción de Supervivencia en Pacientes con Cáncer")
-st.header("Introduce los datos del paciente")
+st.title("🔬 Predicción de Supervivencia en Pacientes con Cáncer")
+st.markdown("Completa los siguientes datos para obtener una predicción basada en variables clínicas clave.")
 
-# Formulario con las variables necesarias
-sexo = st.selectbox("Sexo", ["F", "M"])
-age = st.slider("Edad", 18, 100, 50)
-family_history = st.selectbox("Antecedentes familiares", ["No", "Yes"])
-smoke = st.selectbox("Fuma", ["No", "Yes"])
-alcohol = st.selectbox("Bebe alcohol", ["No", "Yes"])
-obesity = st.selectbox("Obesidad", ["Normal", "Overweight", "Obese"])
-diet = st.selectbox("Dieta", ["Low", "Moderate", "High"])
-screening = st.selectbox("Historial de cribado", ["Never", "Irregular", "Regular"])
-access = st.selectbox("Acceso a la sanidad", ["Low", "Moderate", "High"])
-cancer_stage = st.selectbox("Estadio del cáncer", [1, 2, 3, 4])
-tumor_size = st.slider("Tamaño del tumor", 0.0, 10.0, 5.0)
-early_detection = st.selectbox("Detección precoz", ["No", "Yes"])
-bowel = st.selectbox("Enfermedad inflamatoria intestinal", ["No", "Yes"])
-relapse = st.selectbox("Ha tenido recaída", ["No", "Yes"])
-hemoglobina = st.number_input("Hemoglobina", value=13.0)
+# Crear columnas para el formulario
+col1, col2 = st.columns(2)
 
-# Crear DataFrame con los datos introducidos (sin codificar)
+with col1:
+    sexo = st.selectbox("Sexo", ["F", "M"])
+    relapse = st.selectbox("¿Ha tenido recaída?", ["No", "Yes"])
+    early_detection = st.selectbox("¿Se ha detectado precozmente?", ["No", "Yes"])
+    bowel = st.selectbox("¿Tiene enfermedad inflamatoria intestinal?", ["No", "Yes"])
+
+with col2:
+    tumor_size = st.number_input("Tamaño del tumor (en mm)", min_value=0.0, max_value=100.0, value=30.0, step=1.0)
+    obesity = st.selectbox("Estado de obesidad", ["Normal", "Overweight", "Obese"])
+    family_history = st.selectbox("¿Antecedentes familiares de cáncer?", ["No", "Yes"])
+
+# Crear DataFrame con los datos introducidos
 datos_paciente = pd.DataFrame([{
     "Sexo": sexo,
-    "Age": age,
-    "Family history": family_history,
-    "smoke": smoke,
-    "alcohol": alcohol,
-    "obesity": obesity,
-    "diet": diet,
-    "Screening_History": screening,
-    "Healthcare_Access": access,
-    "cancer_stage": cancer_stage,
     "tumor_size": tumor_size,
+    "relapse": relapse,
     "early_detection": early_detection,
     "inflammatory_bowel_disease": bowel,
-    "relapse": relapse,
-    "Hemoglobina": hemoglobina
+    "obesity": obesity,
+    "Family history": family_history
 }])
 
-# Predicción
-if st.button("Predecir supervivencia"):
+# Mostrar los resultados
+st.markdown("---")
+if st.button("🔍 Predecir supervivencia"):
     pred = modelo.predict(datos_paciente)[0]
     prob = modelo.predict_proba(datos_paciente)[0][1]
 
-    if pred == 1:
-        st.success(f"✅ Supervivencia probable ({prob*100:.1f}% de supervivencia)")
+    if pred == "Yes":
+        st.success(f"✅ Supervivencia probable ({prob * 100:.1f}% de supervivencia)")
     else:
-        st.warning(f"⚠️ Riesgo de no supervivencia ({(1 - prob)*100:.1f}% de no supervivencia)")
-
+        st.error(f"⚠️ Riesgo de no supervivencia ({(1 - prob) * 100:.1f}% de no supervivencia)")

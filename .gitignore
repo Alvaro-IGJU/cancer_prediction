@@ -8,3 +8,4 @@ colon_image_sets/
 data/
 modelos_guardados/
 *.csv
+*.db

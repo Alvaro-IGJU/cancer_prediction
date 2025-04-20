@@ -1,0 +1,28 @@
+
+Table pacientes {
+  id INTEGER [pk]
+  Sexo TEXT
+  Age INTEGER
+  Family_history TEXT
+  smoke TEXT
+  alcohol TEXT
+  obesity TEXT
+  diet TEXT
+  Screening_History TEXT
+  Healthcare_Access TEXT
+  Survival_Prediction TEXT
+}
+
+Table analisis_cancer {
+  id INTEGER [pk, ref: > pacientes.id]
+  cancer_stage TEXT
+  tumor_size INTEGER
+  early_detection TEXT
+  inflammatory_bowel_disease TEXT
+  relapse TEXT
+}
+
+Table imagenes {
+  id INTEGER [pk, ref: > pacientes.id]
+  imagename TEXT
+}

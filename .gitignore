@@ -4,3 +4,7 @@ __pycache__/
 *.so
 *.pkl
 *.h5
+colon_image_sets/
+data/
+modelos_guardados/
+*.csv

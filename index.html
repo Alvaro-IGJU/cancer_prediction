@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Predicción de Cáncer de Colon</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #003049;
+            color: white;
+            padding: 20px;
+            border-bottom: 4px solid #669bbc;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 20px;
+            text-align: left;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        p {
+            margin: 5px 0 0 0;
+        }
+
+        .main {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .panel {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #003049;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        button {
+            margin-top: 30px;
+            padding: 12px 25px;
+            background-color: #669bbc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #4a7ca1;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 12px;
+            font-size: 1em;
+            border-left: 8px solid #ccc;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .result:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .low {
+            border-left-color: #6a994e;
+            background: linear-gradient(135deg, #d8f3dc, #b7e4c7);
+            color: #1b4332;
+        }
+
+        .moderate {
+            border-left-color: #f4a261;
+            background: linear-gradient(135deg, #ffe8d6, #f4a261);
+            color: #7c4700;
+        }
+
+        .high {
+            border-left-color: #e63946;
+            background: linear-gradient(135deg, #f8d7da, #e63946);
+            color: #721c24;
+        }
+
+        .result h3 {
+            margin-top: 0;
+            font-size: 1.4em;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            padding-bottom: 8px;
+        }
+
+        .result p {
+            margin: 12px 0;
+            line-height: 1.6;
+        }
+
+        .image-container {
+            text-align: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 400px;
+            border: 3px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .section-title {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            color: #003049;
+            border-bottom: 2px solid #669bbc;
+            padding-bottom: 5px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 900px) {
+            .main {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        .loader {
+            border: 8px solid #e0e0e0;
+            border-top: 8px solid #669bbc;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="logo.png" alt="Logo" class="logo">
+        <div>
+            <h1>Sistema de Predicción de Cáncer de Colon</h1>
+            <p>Evaluación combinada de supervivencia y análisis histológico</p>
+        </div>
+    </div>
+
+    <div class="main">
+        <!-- Panel Izquierdo -->
+        <div class="panel">
+            <div class="section-title">Formulario del paciente</div>
+            <label for="patientId">Introduce el ID del paciente:</label>
+            <input type="number" id="patientId" min="1" required placeholder="Ejemplo: 23">
+            <button onclick="analizarPaciente()">Analizar paciente</button>
+            <div class="loader" id="loader"></div>
+            <div id="resultado" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Panel Derecho (Imagen) -->
+        <div class="panel image-container">
+            <div class="section-title">Imagen Histológica del Paciente</div>
+            <div id="imagenPaciente" style="display:none;">
+                <img id="imagenPacienteSrc" src="" alt="Imagen del paciente">
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2025 Sistema de Predicción de Cáncer - Desarrollo Clínico e IA
+    </div>
+
+    <!-- =================== JS LOGIC =================== -->
+    <script>
+        function analizarPaciente() {
+            const patientId = document.getElementById("patientId").value;
+            const resultadoDiv = document.getElementById("resultado");
+            const imagenDiv = document.getElementById("imagenPaciente");
+            const imagenSrc = document.getElementById("imagenPacienteSrc");
+            const loader = document.getElementById("loader");
+
+            if (!patientId) {
+                resultadoDiv.style.display = "block";
+                resultadoDiv.className = "result";
+                resultadoDiv.innerHTML = `<p style="color:red;">Por favor, introduce un ID de paciente válido.</p>`;
+                imagenDiv.style.display = "none";
+                loader.style.display = "none";
+                return;
+            }
+
+            resultadoDiv.style.display = "none";
+            imagenDiv.style.display = "none";
+            loader.style.display = "block";  // Mostrar spinner
+
+            fetch(`http://localhost:8000/analizar_paciente?id=${patientId}`)
+                .then(response => response.json())
+                .then(data => {
+                    loader.style.display = "none";  // Ocultar spinner
+                    resultadoDiv.style.display = "block";
+
+                    if (data.error) {
+                        resultadoDiv.innerHTML = `<p style="color:red;">${data.error}</p>`;
+                    } else {
+                        let colorClass = data.riesgo === "bajo" ? "low" : data.riesgo === "moderado" ? "moderate" : "high";
+                        resultadoDiv.className = `result ${colorClass}`;
+                        resultadoDiv.innerHTML = `
+                            <h3>Resultados del Análisis</h3>
+                            <p><strong>Probabilidad de supervivencia:</strong> ${data.supervivencia}%</p>
+                            <p><strong>Probabilidad de cáncer en imagen:</strong> ${data.cancer}%</p>
+                            <p><strong>Índice combinado de riesgo:</strong> ${data.riesgo_combinado}%</p>
+                            <p><strong>Clasificación del riesgo:</strong> ${data.riesgo.toUpperCase()}</p>
+                        `;
+
+                        if (data.imagen_url) {
+                            imagenDiv.style.display = "block";
+                            imagenSrc.src = `http://localhost:8000${data.imagen_url}`;
+                        } else {
+                            imagenDiv.style.display = "none";
+                        }
+                    }
+                })
+                .catch(error => {
+                    loader.style.display = "none";
+                    resultadoDiv.style.display = "block";
+                    resultadoDiv.innerHTML = `<p style="color:red;">Error al conectar con el servidor.</p>`;
+                });
+        }
+    </script>
+</body>
+</html>

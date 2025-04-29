@@ -35,13 +35,18 @@ columnas_modelo = [
 ]
 
 def buscar_imagen(imagename):
-    base_id = os.path.splitext(imagename)[0]
-    posibles_rutas = glob.glob(f"colon_image_sets/0_normal/*{base_id}*.jpeg") + \
-                     glob.glob(f"colon_image_sets/1_adenocarcinoma/*{base_id}*.jpeg")
-    for ruta in posibles_rutas:
-        if os.path.isfile(ruta):
-            return ruta
-    return None
+    # Asumimos que si empieza por "colonca" es adenocarcinoma (1), si es "colonn" es normal (0)
+    if "colonca" in imagename:
+        ruta = os.path.join("colon_image_sets/1_adenocarcinoma", imagename)
+    elif "colonn" in imagename:
+        ruta = os.path.join("colon_image_sets/0_normal", imagename)
+    else:
+        return None  # Si no se reconoce el patrón, no devuelve ruta
+
+    if os.path.isfile(ruta):
+        return ruta
+    else:
+        return None
 
 # ===========================
 # RUTA PARA ANALIZAR PACIENTE
@@ -50,7 +55,7 @@ def buscar_imagen(imagename):
 def analizar_paciente(id: int):
     if id not in df_pacientes["id"].values:
         return {"error": "El ID introducido no corresponde a ningún paciente."}
-
+    print("La id introducida es:",id)
     paciente = df_pacientes[df_pacientes["id"] == id].copy()
     analisis = df_analisis[df_analisis["id"] == id].copy()
     imagen_row = df_imagenes[df_imagenes["id"] == id]
@@ -75,8 +80,8 @@ def analizar_paciente(id: int):
 
     prob_supervivencia = modelo_supervivencia.predict_proba(input_modelo)[0][1]
     pred_supervivencia = "alta" if prob_supervivencia >= 0.5 else "baja"
+    imagename = imagen_row["imagename"].values[0]+".jpeg"
 
-    imagename = imagen_row["imagename"].values[0]
     imagen_path = buscar_imagen(imagename)
 
     if not imagen_path:
